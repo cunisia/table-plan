@@ -1,45 +1,15 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import _ from 'lodash';
+import CreateGroupModal from './CreateGroupModal.js';
+import Utils from '../utils/utils.js';
 
 const NEW_GUEST_ID = "NEW_GUESS";
+const NEW_GROUP_OPT = "NEW_GROUP_OPT";
 
 const GENDER = {
     MALE: 'M',
     FEMALE: 'F'
-}
-
-/**
- * Return true if str is empty or blank
- * @param str
- * @returns {boolean|*}
- */
-function isEmptyString(str) {
-    return _.isEmpty(_.trim(str));
-}
-
-/**
- * Replace item at index into array by element. Does not mutate the original array, returns a new one.
- * @param array: array in which the replacement is performed
- * @param index: index of the item which will be replaced
- * @param element: element that will replace the item currently at index in array
- * @returns {[*]}: a new Array in which item at index is element
- */
-function setAtIndex(array, index, element) {
-    let newArray = [...array]; //let's not mutate the original array
-    newArray[index] = element;
-    return newArray;
-}
-
-/**
- * Delete item at index into array. Does not mutate the original array, returns a new one.
- * @param array: array in which the deletion is performed
- * @param index: index of the item which will be deleted
- * @returns {[*]}: a new Array of length decremented of one
- */
-function deleteAtIndex(array, index) {
-    let newArray = [...array]; //let's not mutate the original array
-    newArray.splice(index, 1);
-    return newArray;
 }
 
 function GuestLine(props) {
@@ -48,6 +18,7 @@ function GuestLine(props) {
             <td>{props.guest.firstName}</td>
             <td>{props.guest.lastName}</td>
             <td>{props.guest.sexe}</td>
+            <td>{props.guest.group.name}</td>
             <td>
                 <button type="button" onClick={_ => props.onEdit(props.guest.id)}>Edit</button>
                 <button type="button" onClick={_ => props.onDelete(props.guest.id)}>Delete</button>
@@ -72,6 +43,8 @@ class EditedGuestLine extends React.Component {
         this.state = {
             guest: guest
         };
+        this.onAddGroup = this.onAddGroup.bind(this);
+        this.removeCreateGroupModal = this.removeCreateGroupModal.bind(this);
     }
 
     handleChange(attribute, event) {
@@ -80,13 +53,52 @@ class EditedGuestLine extends React.Component {
         this.setState({guest: guest});
     }
 
+    handleGroupChange(event) {
+        if (event.target.value === NEW_GROUP_OPT) {
+            /* Summon modal for group creation*/
+            ReactDOM.render(<CreateGroupModal onSave={this.onAddGroup} onCancel={this.removeCreateGroupModal}/>, document.getElementById('modalWrapper'));
+        } else {
+            const group = this.props.groupList.find(group => group.id === parseInt(event.target.value));
+            this.setGroup(group);
+        }
+    }
+
+    onAddGroup(group) {
+        this.setGroup(group);
+        this.props.onAddGroup(group);
+        this.removeCreateGroupModal();
+    }
+
+    setGroup(group) {
+        let guest = {...this.state.guest};
+        guest.group = group;
+        this.setState({guest: guest});
+    }
+
+    removeCreateGroupModal() {
+        ReactDOM.unmountComponentAtNode(document.getElementById('modalWrapper'));
+    }
+
     save() {
-        for (const attr in this.state.guest) {
-            if (isEmptyString(this.state.guest[attr])) {
-                this.state.guest[attr] = null;
+        let guest = _.clone(this.state.guest);
+        for (const attr in guest) {
+            if (Utils.isEmptyString(guest[attr])) {
+                guest[attr] = null;
             }
         }
-        this.props.onSave(this.state.guest);
+        this.props.onSave(guest);
+    }
+
+    /*
+        --- RENDERING ---
+    */
+
+    renderGroupOptions() {
+        return this.props.groupList.map(group => {
+            return (
+                <option value={group.id}>{group.name}</option>
+            )
+        })
     }
 
     render() {
@@ -98,6 +110,13 @@ class EditedGuestLine extends React.Component {
                     <select value={this.state.guest.sexe} onChange={e => this.handleChange('sexe', e)}>
                         <option value={GENDER.MALE}>Male</option>
                         <option value={GENDER.FEMALE}>Female</option>
+                    </select>
+                </td>
+                <td>
+                    <select value={this.state.guest.group.id} onChange={e => this.handleGroupChange(e)}>
+                        <option value="">None</option>
+                        {this.renderGroupOptions()}
+                        <option value={NEW_GROUP_OPT}>New Group</option>
                     </select>
                 </td>
                 <td>
@@ -118,26 +137,28 @@ export default class GuestList extends React.Component {
         super(props);
         this.state = {
             guestList: [],
-            editedGuestId: null
+            editedGuestId: null,
+            groupList: []
         };
         this.cancelCurrentEdition = this.cancelCurrentEdition.bind(this);
         this.saveCurrentEdition = this.saveCurrentEdition.bind(this);
         this.editGuest = this.editGuest.bind(this);
         this.deleteGuest = this.deleteGuest.bind(this);
+        this.addGroup = this.addGroup.bind(this);
     }
 
     /*
-        CRUD
+        GUEST CRUD
      */
 
     saveCurrentEdition(guest) {
         const index = this.state.guestList.findIndex(g => g.id === guest.id);
         if (guest.id === NEW_GUEST_ID) {
-            guest.id = Math.floor(Math.random() * Math.floor(1000000000));
+            guest.id = Utils.generateId();
         }
         if (index > -1) {
             this.setState({
-                guestList: setAtIndex(this.state.guestList, index, guest),
+                guestList: Utils.setAtIndex(this.state.guestList, index, guest),
                 editedGuestId: null
             });
         } else {
@@ -150,7 +171,7 @@ export default class GuestList extends React.Component {
         let state = {editedGuestId: null};
         if (this.state.editedGuestId === NEW_GUEST_ID) {
             const index = this.state.guestList.findIndex(g => g.id === NEW_GUEST_ID);
-            state.guestList = deleteAtIndex(this.state.guestList, index);
+            state.guestList = Utils.deleteAtIndex(this.state.guestList, index);
         }
         this.setState(state);
         this.focusAddGuestButton();
@@ -168,7 +189,7 @@ export default class GuestList extends React.Component {
         const index = this.state.guestList.findIndex(guest => guest.id === guestId);
         if (index > -1) {
             this.setState({
-                guestList: deleteAtIndex(this.state.guestList, index)
+                guestList: Utils.deleteAtIndex(this.state.guestList, index)
             })
         } else {
             console.warn("Cannot find guest to delete, ignoring: ", guestId);
@@ -181,13 +202,23 @@ export default class GuestList extends React.Component {
             id: NEW_GUEST_ID,
             firstName: null,
             lastName: null,
-            sexe: null
+            sexe: null,
+            group: null
         }
         const guestList = [...this.state.guestList, newGuest];
         this.setState({
             guestList: guestList,
             editedGuestId: NEW_GUEST_ID
         })
+    }
+
+    /*
+        GROUP CRUD
+     */
+
+    addGroup(group) {
+        const groupList = [...this.state.groupList, group];
+        this.setState({groupList: groupList});
     }
 
     /*
@@ -203,7 +234,12 @@ export default class GuestList extends React.Component {
         return this.state.guestList.map(guest => {
             if (guest.id === this.state.editedGuestId) {
                 return (
-                    <EditedGuestLine key={guest.id} guest={guest} onSave={this.saveCurrentEdition} onCancel={this.cancelCurrentEdition}/>
+                    <EditedGuestLine key={guest.id}
+                                     guest={guest}
+                                     groupList={this.state.groupList}
+                                     onSave={this.saveCurrentEdition}
+                                     onCancel={this.cancelCurrentEdition}
+                                     onAddGroup={this.addGroup} />
                 )
             } else {
                 return (
@@ -224,6 +260,7 @@ export default class GuestList extends React.Component {
                                 <td>Fist Name</td>
                                 <td>Last Name</td>
                                 <td>Sexe</td>
+                                <td>Group</td>
                                 <td>Action</td>
                             </tr>
                         </thead>
