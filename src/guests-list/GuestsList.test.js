@@ -9,34 +9,34 @@ import Const from '../utils/const.js'
 
 configure({adapter: new Adapter()});
 
-function fillGuestLineForm(guestLineForm, firstName, lastName, sexe, group) {
+function fillGuestLineForm(guestLineForm, firstName, lastName, sex, group) {
     const firstNameInput = guestLineForm.find('#guest-line-form__input--first-name');
     firstNameInput.simulate('change', { target: { value: firstName } });
     const lastNameInput = guestLineForm.find('#guest-line-form__input--last-name');
     lastNameInput.simulate('change', { target: { value: lastName } });
-    const sexeInput = guestLineForm.find('#guest-line-form__input--sexe');
-    sexeInput.simulate('change', { target: { value: sexe} });
+    const sexInput = guestLineForm.find('#guest-line-form__input--sex');
+    sexInput.simulate('change', { target: { value: sex} });
     if (group) {
         const groupInput = guestLineForm.find('#guest-line-form__input--group');
         groupInput.simulate('change', { target: { value: Const.NEW_GROUP_OPT} });
     }
 }
 
-function addGuest(guestListComponent, firstName, lastName, sexe, group) {
+function addGuest(guestListComponent, firstName, lastName, sex, group) {
     //click on add guest button
     const addGuestBtn = guestListComponent.find('#guest-list__add-guest');
     addGuestBtn.simulate('click');
 
     //filling form
     const guestLineForm = guestListComponent.find(GuestLineForm).dive();
-    fillGuestLineForm(guestLineForm, firstName, lastName, sexe, group);
+    fillGuestLineForm(guestLineForm, firstName, lastName, sex, group);
 
     //validate
     const submitInput = guestLineForm.find('#guest-line-form__input--submit');
     submitInput.simulate('click');
 }
 
-function editGuest(guestListComponent, guestLine, firstName, lastName, sexe, group) {
+function editGuest(guestListComponent, guestLine, firstName, lastName, sex, group) {
     //click on edit
     guestLine.find('#guest-line__btn--edit').simulate('click');
     expect(guestListComponent.find(GuestLineForm)).to.have.lengthOf(1);
@@ -44,17 +44,17 @@ function editGuest(guestListComponent, guestLine, firstName, lastName, sexe, gro
 
     //fill form
     const guestLineForm = guestListComponent.find(GuestLineForm).dive();
-    fillGuestLineForm(guestLineForm, firstName, lastName, sexe, group);
+    fillGuestLineForm(guestLineForm, firstName, lastName, sex, group);
 
     //validate
     const submitInput = guestLineForm.find('#guest-line-form__input--submit');
     submitInput.simulate('click');
 }
 
-function checkGuestLine(guestLine, firstName, lastName, sexe, group) {
+function checkGuestLine(guestLine, firstName, lastName, sex, group) {
     expect(guestLine.find('.guest-line__cell--first-name').text()).to.equal(firstName);
     expect(guestLine.find('.guest-line__cell--last-name').text()).to.equal(lastName);
-    expect(guestLine.find('.guest-line__cell--sexe').text()).to.equal(sexe);
+    expect(guestLine.find('.guest-line__cell--sex').text()).to.equal(sex);
 }
 
 test('No guest', () => {

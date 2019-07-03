@@ -11,7 +11,7 @@ export default class GuestLineForm extends React.Component {
         let guest = _.clone(this.props.guest);
         for (const attr in guest) {
             if (guest[attr] === null) {
-                if (attr === 'sexe') {
+                if (attr === 'sex') {
                     guest[attr] = Const.GENDER.MALE;
                 } else {
                     guest[attr] = '';
@@ -90,9 +90,9 @@ export default class GuestLineForm extends React.Component {
                 </td>
                 <td className="guest-line-form__cell">
                     <select
-                        id="guest-line-form__input--sexe"
-                        value={this.state.guest.sexe}
-                        onChange={e => this.handleChange('sexe', e)}>
+                        id="guest-line-form__input--sex"
+                        value={this.state.guest.sex}
+                        onChange={e => this.handleChange('sex', e)}>
                         <option value={Const.GENDER.MALE}>Male</option>
                         <option value={Const.GENDER.FEMALE}>Female</option>
                     </select>

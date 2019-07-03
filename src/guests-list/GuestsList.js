@@ -74,7 +74,7 @@ export default class GuestList extends React.Component {
             id: Const.NEW_GUEST_ID,
             firstName: null,
             lastName: null,
-            sexe: null,
+            sex: null,
             group: null
         }
         const guestList = [...this.state.guestList, newGuest];
