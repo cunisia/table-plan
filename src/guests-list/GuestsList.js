@@ -1,7 +1,7 @@
 import React from 'react';
 import Utils from '../utils/utils.js';
 import Const from '../utils/const.js';
-import EditedGuestLine from './EditedGuestLine.js';
+import GuestLineForm from './GuestLineForm.js';
 import GuestLine from './GuestLine.js';
 
 export default class GuestList extends React.Component {
@@ -102,16 +102,15 @@ export default class GuestList extends React.Component {
     }
 
     renderGuestList() {
-        console.log(this.state.guestList);
         return this.state.guestList.map(guest => {
             if (guest.id === this.state.editedGuestId) {
                 return (
-                    <EditedGuestLine key={guest.id}
-                                     guest={guest}
-                                     groupList={this.state.groupList}
-                                     onSave={this.saveCurrentEdition}
-                                     onCancel={this.cancelCurrentEdition}
-                                     onAddGroup={this.addGroup} />
+                    <GuestLineForm key={guest.id}
+                                   guest={guest}
+                                   groupList={this.state.groupList}
+                                   onSave={this.saveCurrentEdition}
+                                   onCancel={this.cancelCurrentEdition}
+                                   onAddGroup={this.addGroup} />
                 )
             } else {
                 return (
@@ -140,7 +139,13 @@ export default class GuestList extends React.Component {
                             {this.renderGuestList()}
                         </tbody>
                     </table>
-                    <button type="button" onClick={_ => this.addGuest()} ref={e => this.addGuestBtn = e}>Add Guest</button>
+                    <button
+                        id="guest-list__add-guest"
+                        type="button"
+                        onClick={_ => this.addGuest()}
+                        ref={e => this.addGuestBtn = e}>
+                            Add Guest
+                    </button>
                 </form>
             </section>
         );
