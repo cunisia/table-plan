@@ -5,7 +5,7 @@ import CreateGroupModal from './CreateGroupModal.js';
 import Utils from '../utils/utils.js';
 import Const from '../utils/const.js'
 
-export default class EditedGuestLine extends React.Component {
+export default class GuestLineForm extends React.Component {
     constructor(props) {
         super(props);
         let guest = _.clone(this.props.guest);
@@ -81,25 +81,45 @@ export default class EditedGuestLine extends React.Component {
 
     render() {
         return (
-            <tr>
-                <td><input value={this.state.guest.firstName} onChange={e => this.handleChange('firstName', e)} ref={e => this.toFocus = e}/></td>
-                <td><input value={this.state.guest.lastName} onChange={e => this.handleChange('lastName', e)} /></td>
-                <td>
-                    <select value={this.state.guest.sexe} onChange={e => this.handleChange('sexe', e)}>
+            <tr className="guest-line-form">
+                <td className="guest-line-form__cell">
+                    <input id="guest-line-form__input--first-name" value={this.state.guest.firstName} onChange={e => this.handleChange('firstName', e)} ref={e => this.toFocus = e}/>
+                </td>
+                <td className="guest-line-form__cell">
+                    <input id="guest-line-form__input--last-name" value={this.state.guest.lastName} onChange={e => this.handleChange('lastName', e)} />
+                </td>
+                <td className="guest-line-form__cell">
+                    <select
+                        id="guest-line-form__input--sexe"
+                        value={this.state.guest.sexe}
+                        onChange={e => this.handleChange('sexe', e)}>
                         <option value={Const.GENDER.MALE}>Male</option>
                         <option value={Const.GENDER.FEMALE}>Female</option>
                     </select>
                 </td>
-                <td>
-                    <select value={this.state.guest.group.id} onChange={e => this.handleGroupChange(e)}>
+                <td className="guest-line-form__cell">
+                    <select
+                        id="guest-line-form__input--group"
+                        value={this.state.guest.group.id}
+                        onChange={e => this.handleGroupChange(e)}>
                         <option value="">None</option>
                         {this.renderGroupOptions()}
                         <option value={Const.NEW_GROUP_OPT}>New Group</option>
                     </select>
                 </td>
-                <td>
-                    <button type="submit" onClick={_ => this.save()}>Ok</button> {/*TODO: add form validation*/}
-                    <button type="button" onClick={_ => this.props.onCancel()}>Cancel</button>
+                <td className="guest-line-form__cell">
+                    <button
+                        id="guest-line-form__input--submit"
+                        type="submit"
+                        onClick={_ => this.save()}>
+                        Ok
+                    </button> {/*TODO: add form validation*/}
+                    <button
+                        id="guest-line-form__input--cancel"
+                        type="button"
+                        onClick={_ => this.props.onCancel()}>
+                        Cancel
+                    </button>
                 </td>
             </tr>
         );
