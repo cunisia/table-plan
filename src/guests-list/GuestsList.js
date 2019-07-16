@@ -12,8 +12,8 @@ export default class GuestList extends React.Component {
             editedGuestId: null,
             groupList: []
         };
-        this.cancelCurrentEdition = this.cancelCurrentEdition.bind(this);
-        this.saveCurrentEdition = this.saveCurrentEdition.bind(this);
+        this.cancelGuestEdition = this.cancelGuestEdition.bind(this);
+        this.saveGuest = this.saveGuest.bind(this);
         this.editGuest = this.editGuest.bind(this);
         this.deleteGuest = this.deleteGuest.bind(this);
         this.addGroup = this.addGroup.bind(this);
@@ -23,7 +23,7 @@ export default class GuestList extends React.Component {
         GUEST CRUD
      */
 
-    saveCurrentEdition(guest) {
+    saveGuest(guest) {
         const index = this.state.guestList.findIndex(g => g.id === guest.id);
         if (guest.id === Const.NEW_GUEST_ID) {
             guest.id = Utils.generateId();
@@ -39,7 +39,7 @@ export default class GuestList extends React.Component {
         this.focusAddGuestButton();
     }
 
-    cancelCurrentEdition() {
+    cancelGuestEdition() {
         let state = {editedGuestId: null};
         if (this.state.editedGuestId === Const.NEW_GUEST_ID) {
             const index = this.state.guestList.findIndex(g => g.id === Const.NEW_GUEST_ID);
@@ -50,14 +50,14 @@ export default class GuestList extends React.Component {
     }
 
     editGuest(guestId) {
-        this.cancelCurrentEdition(); //TODO: warning side effect since it is called as utils too... (not a problem for now)
+        this.cancelGuestEdition(); //TODO: warning side effect since it is called as utils too... (not a problem for now)
         this.setState({
             editedGuestId: guestId
         });
     }
 
     deleteGuest(guestId) {
-        this.cancelCurrentEdition();
+        this.cancelGuestEdition();
         const index = this.state.guestList.findIndex(guest => guest.id === guestId);
         if (index > -1) {
             this.setState({
@@ -69,7 +69,7 @@ export default class GuestList extends React.Component {
     }
 
     addGuest() {
-        this.cancelCurrentEdition();
+        this.cancelGuestEdition();
         const newGuest = {
             id: Const.NEW_GUEST_ID,
             firstName: null,
@@ -108,8 +108,8 @@ export default class GuestList extends React.Component {
                     <GuestLineForm key={guest.id}
                                    guest={guest}
                                    groupList={this.state.groupList}
-                                   onSave={this.saveCurrentEdition}
-                                   onCancel={this.cancelCurrentEdition}
+                                   onSave={this.saveGuest}
+                                   onCancel={this.cancelGuestEdition}
                                    onAddGroup={this.addGroup} />
                 )
             } else {
