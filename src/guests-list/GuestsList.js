@@ -49,15 +49,15 @@ export default class GuestList extends React.Component {
         this.focusAddGuestButton();
     }
 
-    editGuest(guestId) {
-        this.cancelGuestEdition(); //TODO: warning side effect since it is called as utils too... (not a problem for now)
+    async editGuest(guestId) {
+        await this.cancelGuestEdition(); //TODO: warning side effect since it is called as utils too... (not a problem for now)
         this.setState({
             editedGuestId: guestId
         });
     }
 
-    deleteGuest(guestId) {
-        this.cancelGuestEdition();
+    async deleteGuest(guestId) {
+        await this.cancelGuestEdition();
         const index = this.state.guestList.findIndex(guest => guest.id === guestId);
         if (index > -1) {
             this.setState({
@@ -68,8 +68,8 @@ export default class GuestList extends React.Component {
         }
     }
 
-    addGuest() {
-        this.cancelGuestEdition();
+    async addGuest() {
+        await this.cancelGuestEdition();
         const newGuest = {
             id: Const.NEW_GUEST_ID,
             firstName: null,
