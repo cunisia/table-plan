@@ -1,0 +1,78 @@
+import React from 'react';
+import Utils from '../utils/utils.js';
+
+export default class TableLineForm extends React.Component {
+    constructor(props) {
+        super(props);
+        let table = {...this.props.table};
+        for (let attr in table) {
+            if (table[attr] === null) {
+                table[attr] = '';
+            }
+        }
+        this.state = {
+            table: table
+        }
+    }
+
+    onTableAttributeChange(attribute, value) {
+        const table = {...this.state.table};
+        table[attribute] = value;
+        this.setState({table: table});
+    }
+
+    save(e) {
+        e.preventDefault();
+        let table = {...this.state.table};
+        for (let attr in table) {
+            if (Utils.isEmptyString(table[attr])) {
+                table[attr] = null;
+            }
+        }
+        this.props.onSave(table);
+    }
+
+    /*
+     --- RENDERING ---
+     */
+
+    renderNbSeatsForm() {
+        console.log("this.state.table.isCircle = ", this.state.table.isCircle);
+        if (this.state.table.isCircle) {
+            return (
+                <input value={this.state.table.seatsWidth} type="number" onChange={e => this.onTableAttributeChange('seatsWidth', e.target.value)} />
+            )
+        } else {
+            return (
+                <div>
+                    W:<input value={this.state.table.seatsWidth} type="number" onChange={e => this.onTableAttributeChange('seatsWidth', e.target.value)} />
+                    x
+                    H:<input value={this.state.table.seatsHeight} type="number" onChange={e => this.onTableAttributeChange('seatsHeight', e.target.value)} />
+                </div>
+            )
+        }
+    }
+
+    render() {
+        return (
+            <tr>
+                <td>
+                    <input value={this.state.table.name} onChange={e => this.onTableAttributeChange('name', e.target.value)}/>
+                </td>
+                <td>
+                    <select value={this.state.table.isCircle} onChange={e => this.onTableAttributeChange('isCircle', e.target.value === "false" ? false : true)}>
+                        <option value="false">Rectangle</option>
+                        <option value="true">Circle</option>
+                    </select>
+                </td>
+                <td>
+                    {this.renderNbSeatsForm()}
+                </td>
+                <td>
+                    <button type="submit" onClick={e => this.save(e)}>Ok</button>
+                    <button type="button" onClick={_ => this.props.onCancel()}>Cancel</button>
+                </td>
+            </tr>
+        )
+    }
+}
