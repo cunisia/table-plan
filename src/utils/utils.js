@@ -35,6 +35,15 @@ class Utils {
         return newArray;
     }
 
+    insertAtIndex(array, index, element) {
+        if (index < array.length) {
+            return [...array.slice(0, index), element, ...array.slice(index)];
+        } else if (index === array.length) {
+            return [...array, element];
+        }
+        console.warn("Cannot insert at index because index greater than array's length, ignoring");
+    }
+
     generateId() {
         return Math.floor(Math.random() * Math.floor(1000000000));
     }
