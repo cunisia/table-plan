@@ -1,7 +1,7 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import CreateGroupModal from './CreateGroupModal.js';
+import ModalPortal from '../utils/ModalPortal'
 import Utils from '../utils/utils.js';
 import Const from '../utils/const.js'
 
@@ -19,7 +19,8 @@ export default class GuestLineForm extends React.Component {
             }
         }
         this.state = {
-            guest: guest
+            guest: guest,
+            displayGroupCreationModal: false
         };
         this.onAddGroup = this.onAddGroup.bind(this);
         this.removeCreateGroupModal = this.removeCreateGroupModal.bind(this);
@@ -34,7 +35,9 @@ export default class GuestLineForm extends React.Component {
     handleGroupChange(event) {
         if (event.target.value === Const.NEW_GROUP_OPT) {
             /* Summon modal for group creation*/
-            ReactDOM.render(<CreateGroupModal onSave={this.onAddGroup} onCancel={this.removeCreateGroupModal}/>, document.getElementById('modalWrapper'));
+            this.setState({
+                displayGroupCreationModal: true
+            });
         } else {
             const group = this.props.groupList.find(group => group.id === parseInt(event.target.value));
             this.setGroup(group);
@@ -54,7 +57,9 @@ export default class GuestLineForm extends React.Component {
     }
 
     removeCreateGroupModal() {
-        ReactDOM.unmountComponentAtNode(document.getElementById('modalWrapper'));
+        this.setState({
+            displayGroupCreationModal: false
+        })
     }
 
     save() {
@@ -106,6 +111,13 @@ export default class GuestLineForm extends React.Component {
                         {this.renderGroupOptions()}
                         <option value={Const.NEW_GROUP_OPT}>New Group</option>
                     </select>
+                    <ModalPortal>
+                        {
+                            this.state.displayGroupCreationModal ?
+                                <CreateGroupModal onSave={this.onAddGroup} onCancel={this.removeCreateGroupModal}/>
+                            : null
+                        }
+                    </ModalPortal>
                 </td>
                 <td className="guest-line-form__cell">
                     <button
