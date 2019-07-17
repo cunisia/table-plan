@@ -31,11 +31,13 @@ export default class CreateGroupModal extends React.Component {
             <dialog open>
                 <h2>Create new group</h2>
                 <form>
-                    <input value={this.state.name}
-                           onChange={e => this.onChange(e)}
-                           ref={e => this.toFocus = e}
+                    <input
+                        id="create-group-modal__input--name"
+                        value={this.state.name}
+                        onChange={e => this.onChange(e)}
+                        ref={e => this.toFocus = e}
                     />
-                    <button type="submit" onClick={_ => this.save()}>Save</button>
+                    <button id="create-group-modal__input--submit" type="submit" onClick={_ => this.save()}>Save</button>
                     <button type="button" onClick={_ => this.cancel()}>Cancel</button>
                 </form>
             </dialog>

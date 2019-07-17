@@ -135,7 +135,7 @@ export default class GuestList extends React.Component {
                                 <td>Action</td>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="guest-list__body">
                             {this.renderGuestList()}
                         </tbody>
                     </table>
