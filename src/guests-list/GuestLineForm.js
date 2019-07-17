@@ -79,7 +79,7 @@ export default class GuestLineForm extends React.Component {
     renderGroupOptions() {
         return this.props.groupList.map(group => {
             return (
-                <option value={group.id}>{group.name}</option>
+                <option key={group.id} value={group.id}>{group.name}</option>
             )
         })
     }
@@ -107,9 +107,9 @@ export default class GuestLineForm extends React.Component {
                         id="guest-line-form__input--group"
                         value={this.state.guest.group.id}
                         onChange={e => this.handleGroupChange(e)}>
-                        <option value="">None</option>
-                        {this.renderGroupOptions()}
-                        <option value={Const.NEW_GROUP_OPT}>New Group</option>
+                            <option key={"NONE"} value="">None</option>
+                            {this.renderGroupOptions()}
+                            <option key={Const.NEW_GROUP_OPT} value={Const.NEW_GROUP_OPT}>New Group</option>
                     </select>
                     <ModalPortal>
                         {
