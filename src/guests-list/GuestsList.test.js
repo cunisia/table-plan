@@ -62,7 +62,7 @@ async function addGuest(guestListComponent, firstName, lastName, sex, group) {
 
 async function editGuest(guestListComponent, guestLine, firstName, lastName, sex, group) {
     //click on edit
-    await guestLine.find('#guest-line__btn--edit').simulate('click');
+    await guestLine.find('.guest-line__btn--edit').simulate('click');
     expect(guestListComponent.find(GuestLineForm)).to.have.lengthOf(1);
 
     //fill form
@@ -176,7 +176,7 @@ test('Cancel guest edition', async () => {
     let guestLine = guestList.find(GuestLine).dive();
 
     //click on edit
-    await guestLine.find('#guest-line__btn--edit').simulate('click');
+    await guestLine.find('.guest-line__btn--edit').simulate('click');
     expect(guestList.find(GuestLineForm)).to.have.lengthOf(1);
 
     //validate
@@ -201,7 +201,7 @@ test('Deleting a guest', async () => {
 
     //deletion
     let guestLine = guestList.find(GuestLine).dive();
-    await guestLine.find('#guest-line__btn--delete').simulate('click');
+    await guestLine.find('.guest-line__btn--delete').simulate('click');
 
     //Checking
     expect(guestList.find(GuestLineForm)).to.have.lengthOf(0);
