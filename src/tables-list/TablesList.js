@@ -3,8 +3,8 @@ import Const from '../utils/const.js';
 import Utils from '../utils/utils.js';
 import _ from 'lodash';
 
-import TableLine from './TableLine';
-import TableLineForm from './TableLineForm';
+import TableLine from './TableLine.js';
+import TableLineForm from './TableLineForm.js';
 
 export default class TablesList extends React.Component {
     constructor(props) {
