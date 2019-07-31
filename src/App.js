@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
-import GuestsList from './guests-list/GuestsList.js'
-import TablesList from "./tables-list/TablesList";
+import GuestsListContainer from './guests-list/GuestsListContainer.js'
+import TablesListContainer from "./tables-list/TablesListContainer";
 
 function App() {
     return (
@@ -9,8 +9,8 @@ function App() {
             <header className="App-header">
                 Table Plan AI
             </header>
-            <GuestsList/>
-            <TablesList/>
+            <GuestsListContainer/>
+            <TablesListContainer/>
         </div>
     );
 }
