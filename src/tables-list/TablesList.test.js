@@ -1,202 +1,156 @@
 import React from 'react';
-import {shallow, configure } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16'
-import { expect } from 'chai';
-import Const from '../utils/const.js'
+import { createStore } from 'redux';
 
-import TablesList from './TablesList.js'
-import TableLine from './TableLine.js'
-import TableLineForm from './TableLineForm.js'
+import { getByText } from '@testing-library/dom';
+import { render, cleanup, fireEvent } from "@testing-library/react";
+import "@testing-library/jest-dom/extend-expect";
+
+import tablePlanReducer from '../store/reducers';
+import TablesListContainer from './TablesListContainer.js'
 import TableUtils from './TableUtils.js'
 
-configure({adapter: new Adapter()});
+async function fillTableLineForm(rendered, tableName, isCircle, seatsWidth, seatsHeight) {
+    const nameInput = rendered.getByPlaceholderText('Name');
+    await fireEvent.change(nameInput, { target: { value: tableName } });
 
-async function fillTableLineForm(tableLineForm, tableName, isCircle, seatsWidth, seatsHeight) {
-    const nameInput = tableLineForm.find('#table-line-form__input--name');
-    await nameInput.simulate('change', { target: { value: tableName } });
+    const isCircleInput = rendered.getByTestId('table-line-form__select--is-circle');
+    await fireEvent.change(isCircleInput, { target: { value: isCircle.toString() } });
 
-    const isCircleInput = tableLineForm.find('#table-line-form__select--is-circle');
-    await isCircleInput.simulate('change', { target: { value: isCircle.toString() } });
-
-    const seatsWidthInput = tableLineForm.find('#table-line-form__input--seats-with');
-    await seatsWidthInput.simulate('change', { target: { value: seatsWidth} });
+    const seatsWidthInput = rendered.getByTestId('table-line-form__input--seats-with');
+    await fireEvent.change(seatsWidthInput, { target: { value: seatsWidth} });
 
     if (!isCircle) {
-        const seatsHeightInput = tableLineForm.find('#table-line-form__input--seats-height');
-        await seatsHeightInput.simulate('change', { target: { value: seatsHeight} });
+        const seatsHeightInput = rendered.getByTestId('table-line-form__input--seats-height');
+        await fireEvent.change(seatsHeightInput, { target: { value: seatsHeight} });
     }
 }
 
-async function addTable(tablesListComponent, tableName, isCircle, seatsWidth, seatsHeight) {
+async function addTable(rendered, tableName, isCircle, seatsWidth, seatsHeight) {
     //click on add table button
-    const addTableBtn = tablesListComponent.find('#tables-list__add-table');
-    await addTableBtn.simulate('click');
+    await fireEvent.click(rendered.getByText("Add table", {exact: false}));
 
     //filling form
-    const tableLineForm = tablesListComponent.find(TableLineForm).dive();
-    await fillTableLineForm(tableLineForm, tableName, isCircle, seatsWidth, seatsHeight);
+    await fillTableLineForm(rendered, tableName, isCircle, seatsWidth, seatsHeight);
 
     //validate
-    const submitInput = tableLineForm.find('#table-line-form__input--submit');
-    submitInput.simulate('click');
+    await fireEvent.click(getByText(rendered.container.querySelector('.table-line-form'), "Ok", {exact: false}));
 }
 
-async function editTable(tablesListComponent, tableLineComponent, tableName, isCircle, seatsWidth, seatsHeight) {
+async function editTable(rendered, tableLine, tableName, isCircle, seatsWidth, seatsHeight) {
     //click on edit
-    await tableLineComponent.find('.table-line__btn--edit').simulate('click');
-    expect(tablesListComponent.find(TableLineForm)).to.have.lengthOf(1);
+    await fireEvent.click(getByText(tableLine, 'Edit', {exact: false}));
+    const tableLineForm = rendered.container.querySelector('.table-line-form');
+    expect(tableLineForm).not.toBeNull();
 
     //fill form
-    const tableLineForm = tablesListComponent.find(TableLineForm).dive();
-    await fillTableLineForm(tableLineForm, tableName, isCircle, seatsWidth, seatsHeight);
+    await fillTableLineForm(rendered, tableName, isCircle, seatsWidth, seatsHeight);
 
     //validate
-    const submitInput = tableLineForm.find('#table-line-form__input--submit');
-    await submitInput.simulate('click');
+    await fireEvent.click(getByText(tableLineForm, 'Ok', {exact: false}));
 }
 
 function checkTableLine(tableLine, tableName = '', isCircle = false, seatsWidth=0, seatsHeight =0) {
-    expect(tableLine.find('.table-line__cell--name').text()).to.equal(tableName);
-    expect(tableLine.find('.table-line__cell--shape').text()).to.equal(TableUtils.getShapeLabel(isCircle, seatsWidth, seatsHeight));
-    expect(tableLine.find('.table-line__cell--nb-seats').text()).to.equal(TableUtils.getNbSeats(isCircle, seatsWidth, seatsHeight).toString());
+    expect(tableLine.querySelector('.table-line__cell--name').innerHTML).toBe(tableName);
+    expect(tableLine.querySelector('.table-line__cell--shape').innerHTML).toBe(TableUtils.getShapeLabel(isCircle, seatsWidth, seatsHeight));
+    expect(tableLine.querySelector('.table-line__cell--nb-seats').innerHTML).toBe(TableUtils.getNbSeats(isCircle, seatsWidth, seatsHeight).toString());
 }
 
-test('No table', () => {
-    const tableList = shallow(<TablesList />);
+describe('TablesListContainer component', () => {
+    let store, rendered;
 
-    expect(tableList.find('tbody').children()).to.have.lengthOf(0);
+    beforeEach(() => {
+        store = createStore(tablePlanReducer);
+        rendered = render(<TablesListContainer store={store} />);
+    });
+
+    afterEach(() => {
+        cleanup();
+    });
+
+    it('No table', () => {
+        const { container } = render(<TablesListContainer store={store} />);
+        expect(container.querySelector('tbody').children).toHaveLength(0);
+    });
+
+    it('Adding a table', async () => {
+        await addTable(rendered, 'Test Table', false, 5, 3);
+
+        //Checking
+        expect(rendered.container.querySelector('.table-line-form')).toBeNull();
+        expect(rendered.container.querySelector('.table-line')).not.toBeNull();
+        checkTableLine(rendered.container.querySelector('.table-line'), 'Test Table', false, 5, 3);
+    });
+
+    it('Cancel table addition', async () => {
+        //click on add table button
+        await fireEvent.click(rendered.getByText("Add table", {exact: false}));
+        expect(rendered.container.querySelector('.table-line-form')).not.toBeNull();
+
+        //cancel
+        await fireEvent.click(getByText(rendered.container.querySelector('.table-line-form'), "Cancel", {exact: false}));
+
+        //Checking
+        expect(rendered.container.querySelector('.table-line-form')).toBeNull();
+        expect(rendered.container.querySelector('.table-line')).toBeNull();
+    });
+
+    it('Editing a table', async () => {
+        await addTable(rendered, 'Test Table', false, 5, 3);
+
+        await editTable(rendered, rendered.container.querySelector('.table-line'), 'Test Table 2', true, 16);
+
+        //Checking
+        expect(rendered.container.querySelector('.table-line-form')).toBeNull();
+        expect(rendered.container.querySelector('.table-line')).not.toBeNull();
+        checkTableLine(rendered.container.querySelector('.table-line'), 'Test Table 2', true, 16);
+    });
+
+    it('Cancel table edition', async () => {
+        await addTable(rendered, 'Test Table', false, 5, 3);
+
+        //click on edit
+        await fireEvent.click(getByText(rendered.container.querySelector('.table-line'), "Edit", {exact: false}));
+        expect(rendered.container.querySelector('.table-line-form')).not.toBeNull();
+        expect(rendered.container.querySelector('.table-line')).toBeNull();
+
+        //cancel
+        await fireEvent.click(getByText(rendered.container.querySelector('.table-line-form'), "Cancel", {exact: false}));
+
+        //Checking
+        expect(rendered.container.querySelector('.table-line-form')).toBeNull();
+        expect(rendered.container.querySelector('.table-line')).not.toBeNull();
+        checkTableLine(rendered.container.querySelector('.table-line'), 'Test Table', false, 5, 3);
+    });
+
+    it('Deleting a table', async () => {
+        //addition
+        await addTable(rendered, 'Test Table', false, 5, 3);
+        expect(rendered.container.querySelector('.table-line-form')).toBeNull();
+        expect(rendered.container.querySelector('.table-line')).not.toBeNull();
+
+        //deletion
+        await fireEvent.click(getByText(rendered.container.querySelector('.table-line'), "Delete", {exact: false}));
+
+        //Checking
+        expect(rendered.container.querySelector('.table-line-form')).toBeNull();
+        expect(rendered.container.querySelector('.table-line')).toBeNull();
+    });
+
+    it('Copying a table', async () => {
+        //addition
+        await addTable(rendered, 'Test Table', false, 5, 3);
+        expect(rendered.container.querySelector('.table-line-form')).toBeNull();
+        expect(rendered.container.querySelector('.table-line')).not.toBeNull();
+
+        //copying
+        await fireEvent.click(getByText(rendered.container.querySelector('.table-line'), "Copy", {exact: false}));
+
+        //Checking
+        expect(rendered.container.querySelector('.table-line-form')).toBeNull();
+        const tableLines = rendered.container.querySelectorAll('.table-line');
+        expect(tableLines).toHaveLength(2);
+        checkTableLine(tableLines[0], 'Test Table', false, 5, 3);
+        checkTableLine(tableLines[1], 'Test Table', false, 5, 3);
+    });
+
 });
-
-test('Adding a table', async () => {
-    const tableList = shallow(<TablesList />);
-    await addTable(tableList, 'Test Table', false, 5, 3);
-
-    //Checking
-    expect(tableList.find(TableLineForm)).to.have.lengthOf(0);
-    expect(tableList.find(TableLine)).to.have.lengthOf(1);
-    const tableLine = tableList.find(TableLine).dive();
-    checkTableLine(tableLine, 'Test Table', false, 5, 3);
-});
-
-test('Cancel table addition', async () => {
-    const tableList = shallow(<TablesList />);
-
-    //click on add table button
-    const addTableBtn = tableList.find('#tables-list__add-table');
-    await addTableBtn.simulate('click');
-    expect(tableList.find(TableLineForm)).to.have.lengthOf(1);
-
-    //cancel
-    const tableLineForm = tableList.find(TableLineForm).dive();
-    const submitInput = tableLineForm.find('#table-line-form__input--cancel');
-    submitInput.simulate('click');
-
-    //Checking
-    expect(tableList.find(TableLineForm)).to.have.lengthOf(0);
-    expect(tableList.find(TableLine)).to.have.lengthOf(0);
-});
-
-test('Editing a table', async () => {
-    const tableList = shallow(<TablesList />);
-    await addTable(tableList, 'Test Table', false, 5, 3);
-
-    let tableLine = tableList.find(TableLine).dive();
-    await editTable(tableList, tableLine, 'Test Table 2', true, 16);
-
-    //Checking
-    expect(tableList.find(TableLineForm)).to.have.lengthOf(0);
-    expect(tableList.find(TableLine)).to.have.lengthOf(1);
-    tableLine = tableList.find(TableLine).dive();
-    checkTableLine(tableLine, 'Test Table 2', true, 16);
-});
-
-test('Cancel table edition', async () => {
-    const tableList = shallow(<TablesList />);
-    await addTable(tableList, 'Test Table', false, 5, 3);
-    let tableLine = tableList.find(TableLine).dive();
-
-    //click on edit
-    await tableLine.find('.table-line__btn--edit').simulate('click');
-    expect(tableList.find(TableLineForm)).to.have.lengthOf(1);
-
-    //validate
-    const tableLineForm = tableList.find(TableLineForm).dive();
-    const submitInput = tableLineForm.find('#table-line-form__input--cancel');
-    await submitInput.simulate('click');
-
-    //Checking
-    expect(tableList.find(TableLineForm)).to.have.lengthOf(0);
-    expect(tableList.find(TableLine)).to.have.lengthOf(1);
-    tableLine = tableList.find(TableLine).first().dive();
-    checkTableLine(tableLine, 'Test Table', false, 5, 3);
-});
-
-test('Deleting a table', async () => {
-    const tableList = shallow(<TablesList />);
-
-    //addition
-    await addTable(tableList, 'Test Table', false, 5, 3);
-    expect(tableList.find(TableLineForm)).to.have.lengthOf(0);
-    expect(tableList.find(TableLine)).to.have.lengthOf(1);
-
-    //deletion
-    let tableLine = tableList.find(TableLine).dive();
-    await tableLine.find('.table-line__btn--delete').simulate('click');
-
-    //Checking
-    expect(tableList.find(TableLineForm)).to.have.lengthOf(0);
-    expect(tableList.find(TableLine)).to.have.lengthOf(0);
-});
-
-test('Copying a table', async () => {
-    const tableList = shallow(<TablesList />);
-
-    //addition
-    await addTable(tableList, 'Test Table', false, 5, 3);
-    expect(tableList.find(TableLineForm)).to.have.lengthOf(0);
-    expect(tableList.find(TableLine)).to.have.lengthOf(1);
-
-    //deletion
-    let tableLine = tableList.find(TableLine).dive();
-    await tableLine.find('.table-line__btn--copy').simulate('click');
-
-    //Checking
-    expect(tableList.find(TableLineForm)).to.have.lengthOf(0);
-    expect(tableList.find(TableLine)).to.have.lengthOf(2);
-    checkTableLine(tableList.find(TableLine).at(0).dive(), 'Test Table', false, 5, 3);
-    checkTableLine(tableList.find(TableLine).at(1).dive(), 'Test Table', false, 5, 3);
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

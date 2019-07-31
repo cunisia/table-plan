@@ -12,7 +12,7 @@ export default class TableLine extends React.Component {
 
     render() {
         return (
-            <tr>
+            <tr className="table-line">
                 <td className="table-line__cell--name">{this.props.table.name}</td>
                 <td className="table-line__cell--shape">{this.getShapeLabel()}</td>
                 <td className="table-line__cell--nb-seats">{this.getNbSeats()}</td>

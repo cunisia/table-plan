@@ -21,7 +21,10 @@ export default class TableLineForm extends React.Component {
         this.setState({table: table});
     }
 
-    save() {
+    save(e) {
+        if (e && typeof(e.preventDefault) === 'function') {
+            e.preventDefault();
+        }
         let table = {...this.state.table};
         for (let attr in table) {
             if (Utils.isEmptyString(table[attr])) {
@@ -38,7 +41,7 @@ export default class TableLineForm extends React.Component {
     renderNbSeatsForm() {
         const seatsWidthInput = (
             <input
-                id="table-line-form__input--seats-with"
+                data-testid="table-line-form__input--seats-with"
                 value={this.state.table.seatsWidth}
                 type="number"
                 onChange={e => this.onTableAttributeChange('seatsWidth', e.target.value)} />
@@ -51,7 +54,7 @@ export default class TableLineForm extends React.Component {
                     W:{seatsWidthInput}
                     x
                     H:<input
-                        id="table-line-form__input--seats-height"
+                        data-testid="table-line-form__input--seats-height"
                         value={this.state.table.seatsHeight}
                         type="number"
                         onChange={e => this.onTableAttributeChange('seatsHeight', e.target.value)} />
@@ -62,16 +65,16 @@ export default class TableLineForm extends React.Component {
 
     render() {
         return (
-            <tr>
+            <tr className="table-line-form">
                 <td>
                     <input
-                        id="table-line-form__input--name"
+                        placeholder="Name"
                         value={this.state.table.name}
                         onChange={e => this.onTableAttributeChange('name', e.target.value)}/>
                 </td>
                 <td>
                     <select
-                        id="table-line-form__select--is-circle"
+                        data-testid="table-line-form__select--is-circle"
                         value={this.state.table.isCircle}
                         onChange={e => this.onTableAttributeChange('isCircle', e.target.value === "false" ? false : true)}>
                             <option value="false">Rectangle</option>
