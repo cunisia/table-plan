@@ -1,7 +1,5 @@
 import React from 'react';
 import Const from '../utils/const.js';
-import Utils from '../utils/utils.js';
-import _ from 'lodash';
 
 import TableLine from './TableLine.js';
 import TableLineForm from './TableLineForm.js';
@@ -10,7 +8,7 @@ export default class TablesList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            tablesList: this.props.tablesList || [],
+            newTable: null,
             editedTableId: null
         };
         this.editTable = this.editTable.bind(this);
@@ -28,28 +26,26 @@ export default class TablesList extends React.Component {
         await this.cancelEditTable();
         const table = {
             id: Const.NEW_TABLE_ID,
-            name: "Table " + (this.state.tablesList.length + 1),
+            name: "Table " + (this.props.tablesList.length + 1),
             isCircle: false,
             seatsWidth: 4,
             seatsHeight: 2,
         };
         this.setState({
-            tablesList: [...this.state.tablesList, table],
-            editedTableId: table.id
+            newTable: table
         });
     }
 
     saveTable(table) {
-        const index = this.state.tablesList.findIndex(t => table.id === t.id);
-        if (index >  -1) {
-            if (table.id === Const.NEW_TABLE_ID) {
-                table = {...table, id: Utils.generateId()};
-            }
-            this.setState({
-                tablesList: Utils.setAtIndex(this.state.tablesList, index, table),
-                editedTableId: null
-            });
+        if (table.id === Const.NEW_TABLE_ID) {
+            this.props.addTable(table)
+        } else {
+            this.props.editTable(table)
         }
+        this.setState({
+            newTable: null,
+            editedTableId: null
+        });
     }
 
     async editTable(table) {
@@ -57,42 +53,22 @@ export default class TablesList extends React.Component {
         this.setState({editedTableId: table.id});
     }
 
-    cancelEditTable() {
-        if (this.state.editedTableId !== null) {
-            let state = {
-                editedTableId: null
-            };
-            if (this.state.editedTableId === Const.NEW_TABLE_ID) {
-                const index = this.state.tablesList.findIndex(t => this.state.editedTableId === t.id);
-                if (index >  -1) {
-                    state.tablesList = Utils.deleteAtIndex(this.state.tablesList, index);
-                }
-            }
-            this.setState(state);
-        }
-    }
-
     async copyTable(table) {
         await this.cancelEditTable();
-        let newTable = _.cloneDeep(table);
-        newTable.id = Utils.generateId();
-        const index = this.state.tablesList.findIndex(t => t.id === table.id);
-        if (index > -1) {
-            let tableList = Utils.insertAtIndex(this.state.tablesList, index+1, newTable);
-            this.setState({tablesList: tableList});
-        } else {
-            console.warn("Cannot find table to copy, ignoring: " + JSON.stringify(table));
-        }
+        this.props.copyTable(table.id);
     }
 
     async deleteTable(table) {
         await this.cancelEditTable();
-        const index = this.state.tablesList.findIndex(t => t.id === table.id);
-        if (index > -1) {
-            let tableList = Utils.deleteAtIndex(this.state.tablesList, index);
-            this.setState({tablesList: tableList});
-        } else {
-            console.warn("Cannot find table to delete, ignoring: " + JSON.stringify(table));
+        this.props.deleteTable(table.id);
+    }
+
+    cancelEditTable() {
+        if (this.state.editedTableId !== null || this.state.newTable !== null) {
+            this.setState({
+                newTable: null,
+                editedTableId: null
+            });
         }
     }
 
@@ -101,13 +77,19 @@ export default class TablesList extends React.Component {
      */
 
     renderTableList() {
-        return this.state.tablesList.map(table => {
+        return this.props.tablesList.map(table => {
             if (table.id === this.state.editedTableId) {
                 return (<TableLineForm table={table} key={table.id} onSave={this.saveTable} onCancel={this.cancelEditTable} />);
             } else {
                 return (<TableLine table={table} key={table.id} onEdit={this.editTable} onCopy={this.copyTable} onDelete={this.deleteTable}/>)
             }
-        })
+        });
+    }
+
+    renderNewTableForm() {
+        if (this.state.newTable !== null) {
+            return (<TableLineForm key={this.state.newTable.id} table={this.state.newTable} onSave={this.saveTable} onCancel={this.cancelEditTable}/>)
+        }
     }
 
     render() {
@@ -126,6 +108,7 @@ export default class TablesList extends React.Component {
                         </thead>
                         <tbody>
                         {this.renderTableList()}
+                        {this.renderNewTableForm()}
                         </tbody>
                     </table>
                     <button
