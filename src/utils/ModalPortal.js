@@ -1,20 +1,28 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-const portalRoot = document.getElementById('modalWrapper');
-
 export default class ModalPortal extends React.Component {
     constructor() {
         super();
         this.el = document.createElement("div");
     }
 
+    getPortalRoot = () => {
+        return document.getElementById('modal-wrapper');
+    }
+
     componentDidMount = () => {
-        portalRoot.appendChild(this.el);
+        const portalRoot = this.getPortalRoot();
+        if (portalRoot !== null) {
+            portalRoot.appendChild(this.el);
+        }
     };
 
     componentWillUnmount = () => {
-        portalRoot.removeChild(this.el);
+        const portalRoot = this.getPortalRoot();
+        if (portalRoot !== null) {
+            portalRoot.removeChild(this.el);
+        }
     };
 
     render() {
