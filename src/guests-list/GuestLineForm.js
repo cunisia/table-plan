@@ -39,20 +39,18 @@ export default class GuestLineForm extends React.Component {
                 displayGroupCreationModal: true
             });
         } else {
-            const group = this.props.groupList.find(group => group.id === parseInt(event.target.value));
-            this.setGroup(group);
+            this.setGroup(parseInt(event.target.value));
         }
     }
 
     onAddGroup(group) {
-        this.setGroup(group);
+        this.setGroup(group.id);
         this.props.onAddGroup(group);
         this.removeCreateGroupModal();
     }
 
-    setGroup(group) {
-        let guest = {...this.state.guest};
-        guest.group = group;
+    setGroup(groupId) {
+        let guest = {...this.state.guest, groupId: groupId};
         this.setState({guest: guest});
     }
 
@@ -77,7 +75,7 @@ export default class GuestLineForm extends React.Component {
      */
 
     renderGroupOptions() {
-        return this.props.groupList.map(group => {
+        return this.props.groupsList.map(group => {
             return (
                 <option key={group.id} value={group.id}>{group.name}</option>
             )
@@ -88,14 +86,19 @@ export default class GuestLineForm extends React.Component {
         return (
             <tr className="guest-line-form">
                 <td className="guest-line-form__cell">
-                    <input id="guest-line-form__input--first-name" value={this.state.guest.firstName} onChange={e => this.handleChange('firstName', e)} ref={e => this.toFocus = e}/>
+                    <input placeholder="First Name"
+                           value={this.state.guest.firstName}
+                           onChange={e => this.handleChange('firstName', e)}
+                           ref={e => this.toFocus = e}/>
                 </td>
                 <td className="guest-line-form__cell">
-                    <input id="guest-line-form__input--last-name" value={this.state.guest.lastName} onChange={e => this.handleChange('lastName', e)} />
+                    <input placeholder="Last Name"
+                           value={this.state.guest.lastName}
+                           onChange={e => this.handleChange('lastName', e)} />
                 </td>
                 <td className="guest-line-form__cell">
                     <select
-                        id="guest-line-form__input--sex"
+                        data-testid="guest-line-form__input--sex"
                         value={this.state.guest.sex}
                         onChange={e => this.handleChange('sex', e)}>
                         <option value={Const.GENDER.MALE}>Male</option>
@@ -104,8 +107,8 @@ export default class GuestLineForm extends React.Component {
                 </td>
                 <td className="guest-line-form__cell">
                     <select
-                        id="guest-line-form__input--group"
-                        value={this.state.guest.group.id}
+                        data-testid="guest-line-form__input--group"
+                        value={this.state.guest.groupId}
                         onChange={e => this.handleGroupChange(e)}>
                             <option key={"NONE"} value="">None</option>
                             {this.renderGroupOptions()}
@@ -121,7 +124,6 @@ export default class GuestLineForm extends React.Component {
                 </td>
                 <td className="guest-line-form__cell">
                     <button
-                        id="guest-line-form__input--submit"
                         type="submit"
                         onClick={_ => this.save()}>
                         Ok

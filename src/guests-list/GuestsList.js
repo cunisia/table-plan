@@ -1,5 +1,4 @@
 import React from 'react';
-import Utils from '../utils/utils.js';
 import Const from '../utils/const.js';
 import GuestLineForm from './GuestLineForm.js';
 import GuestLine from './GuestLine.js';
@@ -8,11 +7,10 @@ export default class GuestList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            guestList: [],
-            editedGuestId: null,
-            groupList: []
+            newGuest: null,
+            editedGuestId: null
         };
-        this.cancelGuestEdition = this.cancelGuestEdition.bind(this);
+        this.removeGuestForm = this.removeGuestForm.bind(this);
         this.saveGuest = this.saveGuest.bind(this);
         this.editGuest = this.editGuest.bind(this);
         this.deleteGuest = this.deleteGuest.bind(this);
@@ -24,63 +22,45 @@ export default class GuestList extends React.Component {
      */
 
     saveGuest(guest) {
-        const index = this.state.guestList.findIndex(g => g.id === guest.id);
         if (guest.id === Const.NEW_GUEST_ID) {
-            guest.id = Utils.generateId();
-        }
-        if (index > -1) {
-            this.setState({
-                guestList: Utils.setAtIndex(this.state.guestList, index, guest),
-                editedGuestId: null
-            });
+            this.props.addGuest(guest);
         } else {
-            console.warn("Cannot find guest to save, ignoring: ", guest.id);
+            this.props.editGuest(guest);
         }
-        this.focusAddGuestButton();
+        this.removeGuestForm();
     }
 
-    cancelGuestEdition() {
-        let state = {editedGuestId: null};
-        if (this.state.editedGuestId === Const.NEW_GUEST_ID) {
-            const index = this.state.guestList.findIndex(g => g.id === Const.NEW_GUEST_ID);
-            state.guestList = Utils.deleteAtIndex(this.state.guestList, index);
-        }
-        this.setState(state);
+    removeGuestForm() {
+        this.setState({
+            newGuest: null,
+            editedGuestId: null
+        });
         this.focusAddGuestButton();
     }
 
     async editGuest(guestId) {
-        await this.cancelGuestEdition(); //TODO: warning side effect since it is called as utils too... (not a problem for now)
+        await this.removeGuestForm(); //TODO: warning side effect since it is called as utils too... (not a problem for now)
         this.setState({
             editedGuestId: guestId
         });
     }
 
     async deleteGuest(guestId) {
-        await this.cancelGuestEdition();
-        const index = this.state.guestList.findIndex(guest => guest.id === guestId);
-        if (index > -1) {
-            this.setState({
-                guestList: Utils.deleteAtIndex(this.state.guestList, index)
-            })
-        } else {
-            console.warn("Cannot find guest to delete, ignoring: ", guestId);
-        }
+        await this.removeGuestForm();
+        this.props.deleteGuest(guestId);
     }
 
     async addGuest() {
-        await this.cancelGuestEdition();
+        await this.removeGuestForm();
         const newGuest = {
             id: Const.NEW_GUEST_ID,
             firstName: null,
             lastName: null,
             sex: null,
-            group: null
+            groupId: null
         }
-        const guestList = [...this.state.guestList, newGuest];
         this.setState({
-            guestList: guestList,
-            editedGuestId: Const.NEW_GUEST_ID
+            newGuest: newGuest
         })
     }
 
@@ -89,8 +69,7 @@ export default class GuestList extends React.Component {
      */
 
     addGroup(group) {
-        const groupList = [...this.state.groupList, group];
-        this.setState({groupList: groupList});
+        this.props.addGroup(group);
     }
 
     /*
@@ -102,22 +81,39 @@ export default class GuestList extends React.Component {
     }
 
     renderGuestList() {
-        return this.state.guestList.map(guest => {
+        return this.props.guestsList.map(guest => {
             if (guest.id === this.state.editedGuestId) {
                 return (
                     <GuestLineForm key={guest.id}
                                    guest={guest}
-                                   groupList={this.state.groupList}
+                                   groupsList={this.props.groupsList}
                                    onSave={this.saveGuest}
-                                   onCancel={this.cancelGuestEdition}
+                                   onCancel={this.removeGuestForm}
                                    onAddGroup={this.addGroup} />
                 )
             } else {
                 return (
-                    <GuestLine key={guest.id} guest={guest} onEdit={this.editGuest} onDelete={this.deleteGuest}/>
+                    <GuestLine key={guest.id}
+                               guest={guest}
+                               groupsList={this.props.groupsList}
+                               onEdit={this.editGuest}
+                               onDelete={this.deleteGuest}/>
                 )
             }
         })
+    }
+
+    renderNewGuestForm() {
+        if (this.state.newGuest !== null) {
+            return (
+                <GuestLineForm key={this.state.newGuest.id}
+                    guest={this.state.newGuest}
+                    groupsList={this.props.groupsList}
+                    onSave={this.saveGuest}
+                    onCancel={this.removeGuestForm}
+                    onAddGroup={this.addGroup} />
+            )
+        }
     }
 
     render() {
@@ -137,6 +133,7 @@ export default class GuestList extends React.Component {
                         </thead>
                         <tbody id="guest-list__body">
                             {this.renderGuestList()}
+                            {this.renderNewGuestForm()}
                         </tbody>
                     </table>
                     <button
