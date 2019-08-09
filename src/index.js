@@ -8,7 +8,12 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
-const store = createStore(tablePlanReducer);
+const previousState = JSON.parse(window.localStorage.getItem('table-plan-ai'));
+const store = createStore(tablePlanReducer, previousState ? previousState : undefined);
+
+store.subscribe(() => {
+    window.localStorage.setItem('table-plan-ai', JSON.stringify(store.getState()));
+});
 
 ReactDOM.render(
     <Provider store={store}><App /></Provider>,
