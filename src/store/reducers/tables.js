@@ -13,7 +13,7 @@ const addTable = (tablesList, action) => {
 }
 
 const editTable = (tablesList, action) => {
-    const index = tablesList.findIndex(table => action.tableId === table.tableId);
+    const index = tablesList.findIndex(table => action.table.id === table.id);
     if (index > -1) {
         const table = {
             id: action.table.id,
