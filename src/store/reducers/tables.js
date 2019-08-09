@@ -1,5 +1,6 @@
 import { TableActionTypes } from '../actions/tables.js';
 import Utils from '../../utils/utils.js'
+import {copyItem, deleteItem} from './utils.js'
 
 const addTable = (tablesList, action) => {
     const newTable = {
@@ -30,25 +31,11 @@ const editTable = (tablesList, action) => {
 }
 
 const copyTable = (tablesList, action) => {
-    const index = tablesList.findIndex(table => action.tableId === table.id);
-    if (index > -1) {
-        const tableToCopy = tablesList[index];
-        let newTable = {...tableToCopy};
-        newTable.id = Utils.generateId();
-        return Utils.insertAtIndex(tablesList, index+1, newTable);
-    } else {
-        console.warn("Cannot find table to copy, ignoring: ", JSON.stringify(action));
-        return tablesList;
-    }
+    return copyItem(tablesList, action.tableId, "table");
 }
 
 const deleteTable = (tablesList, action) => {
-    const index = tablesList.findIndex(table => action.tableId === table.id);
-    if (index > -1) {
-        return Utils.deleteAtIndex(tablesList, index);
-    } else {
-        console.warn("Cannot find table to delete, ignoring: " + JSON.stringify(action));
-    }
+    return deleteItem(tablesList, action.tableId, "table");
 }
 
 const tablesReducer = (tablesList = [], action) => {

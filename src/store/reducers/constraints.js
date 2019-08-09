@@ -1,5 +1,6 @@
 import { ConstraintActionTypes } from '../actions/constraints.js';
 import Utils from '../../utils/utils.js'
+import {copyItem, deleteItem} from './utils.js'
 
 const defaultConstraints = {
     list: [],
@@ -42,26 +43,11 @@ const editConstraint = (constraintsList, action) => {
 }
 
 const copyConstraint = (constraintsList, action) => {
-    const index = constraintsList.findIndex(constraint => action.constraintId === constraint.id);
-    if (index > -1) {
-        const constraintToCopy = constraintsList[index];
-        let newConstraint = {...constraintToCopy};
-        newConstraint.id = Utils.generateId();
-        console.log(JSON.stringify(newConstraint));
-        return Utils.insertAtIndex(constraintsList, index+1, newConstraint);
-    } else {
-        console.warn("Cannot find constraint to copy, ignoring: ", JSON.stringify(action));
-        return constraintsList;
-    }
+    return copyItem(constraintsList, action.constraintId, "constraint");
 }
 
 const deleteConstraint = (constraintsList, action) => {
-    const index = constraintsList.findIndex(constraint => action.constraintId === constraint.id);
-    if (index > -1) {
-        return Utils.deleteAtIndex(constraintsList, index);
-    } else {
-        console.warn("Cannot find constraint to delete, ignoring: " + JSON.stringify(action));
-    }
+    return deleteItem(constraintsList, action.constraintId, "constraint");
 }
 
 const editGenericConstraint = (constraintsGeneric, action) => {

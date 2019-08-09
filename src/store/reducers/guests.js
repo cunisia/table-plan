@@ -1,6 +1,7 @@
 import { GuestActionTypes } from '../actions/guests.js';
 import { GroupActionTypes } from '../actions/groups.js';
 import Utils from '../../utils/utils.js'
+import {copyItem, deleteItem} from './utils.js'
 
 const addGuest = (guestsList, action) => {
     const newGuest = {
@@ -31,12 +32,7 @@ const editGuest = (guestsList, action) => {
 }
 
 const deleteGuest = (guestsList, action) => {
-    const index = guestsList.findIndex(guest => action.guestId === guest.id);
-    if (index > -1) {
-        return Utils.deleteAtIndex(guestsList, index);
-    } else {
-        console.warn("Cannot find guest to delete, ignoring: " + JSON.stringify(action));
-    }
+    return deleteItem(guestsList, action.guestId, "guest");
 }
 
 const deleteGroup = (guestsList, action) => {
@@ -47,6 +43,10 @@ const deleteGroup = (guestsList, action) => {
             return guest;
         }
     });
+}
+
+const copyGuest = (guestsList, action) => {
+    return copyItem(guestsList, action.guestId, "guest");
 }
 
 const guestsReducer = (guestsList = [], action) => {

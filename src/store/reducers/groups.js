@@ -1,5 +1,6 @@
 import { GroupActionTypes } from '../actions/groups.js';
-import Utils from '../../utils/utils.js'
+import Utils from '../../utils/utils.js';
+import {deleteItem} from './utils.js'
 
 const addGroup = (groupsList, action) => {
     return [...groupsList, action.group];
@@ -20,12 +21,7 @@ const editGroup = (groupsList, action) => {
 }
 
 const deleteGroup = (groupsList, action) => {
-    const index = groupsList.findIndex(group => action.id === group.id);
-    if (index > -1) {
-        return Utils.deleteAtIndex(groupsList, index);
-    } else {
-        console.warn("Cannot find group to delete, ignoring: " + JSON.stringify(action));
-    }
+    return deleteItem(groupsList, action.groupId);
 }
 
 const groupsReducer = (groupsList = [], action) => {
