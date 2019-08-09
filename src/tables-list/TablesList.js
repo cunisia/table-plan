@@ -15,7 +15,7 @@ export default class TablesList extends React.Component {
         this.copyTable = this.copyTable.bind(this);
         this.deleteTable = this.deleteTable.bind(this);
         this.saveTable = this.saveTable.bind(this);
-        this.cancelEditTable = this.cancelEditTable.bind(this);
+        this.removeTableForm = this.removeTableForm.bind(this);
     }
 
     /*
@@ -23,7 +23,7 @@ export default class TablesList extends React.Component {
      */
 
     async addTable() {
-        await this.cancelEditTable();
+        await this.removeTableForm();
         const table = {
             id: Const.NEW_TABLE_ID,
             name: "Table " + (this.props.tablesList.length + 1),
@@ -42,28 +42,25 @@ export default class TablesList extends React.Component {
         } else {
             this.props.editTable(table)
         }
-        this.setState({
-            newTable: null,
-            editedTableId: null
-        });
+        this.removeTableForm();
     }
 
     async editTable(table) {
-        await this.cancelEditTable();
+        await this.removeTableForm();
         this.setState({editedTableId: table.id});
     }
 
     async copyTable(table) {
-        await this.cancelEditTable();
+        await this.removeTableForm();
         this.props.copyTable(table.id);
     }
 
     async deleteTable(table) {
-        await this.cancelEditTable();
+        await this.removeTableForm();
         this.props.deleteTable(table.id);
     }
 
-    cancelEditTable() {
+    removeTableForm() {
         if (this.state.editedTableId !== null || this.state.newTable !== null) {
             this.setState({
                 newTable: null,
@@ -79,7 +76,7 @@ export default class TablesList extends React.Component {
     renderTableList() {
         return this.props.tablesList.map(table => {
             if (table.id === this.state.editedTableId) {
-                return (<TableLineForm table={table} key={table.id} onSave={this.saveTable} onCancel={this.cancelEditTable} />);
+                return (<TableLineForm table={table} key={table.id} onSave={this.saveTable} onCancel={this.removeTableForm} />);
             } else {
                 return (<TableLine table={table} key={table.id} onEdit={this.editTable} onCopy={this.copyTable} onDelete={this.deleteTable}/>)
             }
@@ -88,7 +85,7 @@ export default class TablesList extends React.Component {
 
     renderNewTableForm() {
         if (this.state.newTable !== null) {
-            return (<TableLineForm key={this.state.newTable.id} table={this.state.newTable} onSave={this.saveTable} onCancel={this.cancelEditTable}/>)
+            return (<TableLineForm key={this.state.newTable.id} table={this.state.newTable} onSave={this.saveTable} onCancel={this.removeTableForm}/>)
         }
     }
 
