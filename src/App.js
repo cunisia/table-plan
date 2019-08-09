@@ -1,7 +1,8 @@
 import React from 'react';
 import './App.css';
-import GuestsListContainer from './guests-list/GuestsListContainer.js'
-import TablesListContainer from "./tables-list/TablesListContainer";
+import GuestsListContainer from './guests-list/GuestsListContainer.js';
+import TablesListContainer from './tables-list/TablesListContainer';
+import ConstraintListContainer from './constraints-list/ConstraintsListContainer';
 
 function App() {
     return (
@@ -11,6 +12,7 @@ function App() {
             </header>
             <GuestsListContainer/>
             <TablesListContainer/>
+            <ConstraintListContainer/>
         </div>
     );
 }
