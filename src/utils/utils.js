@@ -47,6 +47,17 @@ class Utils {
     generateId() {
         return Math.floor(Math.random() * Math.floor(1000000000));
     }
+
+    getById(list, id) {
+        for (let i = 0; i < list.length; i++) {
+            const element = list[i];
+            if (element.id == id) { //TODO: replace all IDs by string so that we can use a === easily here
+                return element;
+            }
+        }
+        console.warn("Could not find element in list, returning null: id = " + id + ", list = ", JSON.stringify(list));
+        return null;
+    }
 }
 
 export default new Utils();
