@@ -1,7 +1,8 @@
 export const GuestActionTypes = {
     ADD_GUEST: 'ADD_GUEST',
     DELETE_GUEST: 'DELETE_GUEST',
-    EDIT_GUEST: 'EDIT_GUEST'
+    EDIT_GUEST: 'EDIT_GUEST',
+    COPY_GUEST: 'COPY_GUEST'
 };
 
 export const addGuest = (guest) => ({
@@ -17,4 +18,9 @@ export const deleteGuest = (guestId) => ({
 export const editGuest = (guest) => ({
     type: GuestActionTypes.EDIT_GUEST,
     guest
+});
+
+export const copyGuest = (guestId) => ({
+    type: GuestActionTypes.COPY_GUEST,
+    guestId
 });
