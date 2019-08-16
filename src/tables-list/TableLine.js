@@ -1,7 +1,26 @@
 import React from 'react';
 import TableUtils from './TableUtils'
+import { connect } from 'react-redux'
+import { copyTable, deleteTable } from '../store/actions/tables.js'
 
-export default class TableLine extends React.Component {
+const mapStateToProps = (state) => ({});
+
+const mapDispatchToProps = (dispatch, props) => ({
+    onCopy: (table) => {
+        dispatch(copyTable(table.id));
+        if (typeof(props.onCopy(table)) === "function") {
+            props.onCopy(table)
+        }
+    },
+    onDelete: (table) => {
+        dispatch(deleteTable(table.id));
+        if (typeof(props.onDelete(table)) === "function") {
+            props.onDelete(table)
+        }
+    }
+});
+
+class TableLine extends React.Component {
     getNbSeats() {
         return TableUtils.getNbSeats(this.props.table.isCircle, this.props.table.seatsWidth, this.props.table.seatsHeight);
     }
@@ -25,3 +44,8 @@ export default class TableLine extends React.Component {
         )
     }
 }
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(TableLine)

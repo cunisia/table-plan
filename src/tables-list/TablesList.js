@@ -12,9 +12,6 @@ export default class TablesList extends React.Component {
             editedTableId: null
         };
         this.editTable = this.editTable.bind(this);
-        this.copyTable = this.copyTable.bind(this);
-        this.deleteTable = this.deleteTable.bind(this);
-        this.saveTable = this.saveTable.bind(this);
         this.removeTableForm = this.removeTableForm.bind(this);
     }
 
@@ -36,28 +33,9 @@ export default class TablesList extends React.Component {
         });
     }
 
-    saveTable(table) {
-        if (table.id === Const.NEW_TABLE_ID) {
-            this.props.addTable(table)
-        } else {
-            this.props.editTable(table)
-        }
-        this.removeTableForm();
-    }
-
     async editTable(table) {
         await this.removeTableForm();
         this.setState({editedTableId: table.id});
-    }
-
-    async copyTable(table) {
-        await this.removeTableForm();
-        this.props.copyTable(table.id);
-    }
-
-    async deleteTable(table) {
-        await this.removeTableForm();
-        this.props.deleteTable(table.id);
     }
 
     removeTableForm() {
@@ -76,16 +54,16 @@ export default class TablesList extends React.Component {
     renderTableList() {
         return this.props.tablesList.map(table => {
             if (table.id === this.state.editedTableId) {
-                return (<TableLineForm table={table} key={table.id} onSave={this.saveTable} onCancel={this.removeTableForm} />);
+                return (<TableLineForm table={table} key={table.id} onSave={this.removeTableForm} onCancel={this.removeTableForm} />);
             } else {
-                return (<TableLine table={table} key={table.id} onEdit={this.editTable} onCopy={this.copyTable} onDelete={this.deleteTable}/>)
+                return (<TableLine table={table} key={table.id} onEdit={this.editTable} onCopy={this.removeTableForm} onDelete={this.removeTableForm}/>)
             }
         });
     }
 
     renderNewTableForm() {
         if (this.state.newTable !== null) {
-            return (<TableLineForm key={this.state.newTable.id} table={this.state.newTable} onSave={this.saveTable} onCancel={this.removeTableForm}/>)
+            return (<TableLineForm key={this.state.newTable.id} table={this.state.newTable} onSave={this.removeTableForm} onCancel={this.removeTableForm}/>)
         }
     }
 

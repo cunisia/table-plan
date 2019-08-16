@@ -1,5 +1,6 @@
 import React from 'react';
 import { createStore } from 'redux';
+import { Provider } from 'react-redux';
 
 import { getByText } from '@testing-library/dom';
 import { render, cleanup, fireEvent } from "@testing-library/react";
@@ -60,7 +61,7 @@ describe('TablesListContainer component', () => {
 
     beforeEach(() => {
         store = createStore(tablePlanReducer);
-        rendered = render(<TablesListContainer store={store} />);
+        rendered = render(<Provider store={store}><TablesListContainer /></Provider>);
     });
 
     afterEach(() => {

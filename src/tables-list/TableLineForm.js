@@ -1,7 +1,25 @@
 import React from 'react';
 import Utils from '../utils/utils.js';
+import { connect } from 'react-redux'
+import { addTable, editTable } from '../store/actions/tables.js'
+import Const from '../utils/const.js'
 
-export default class TableLineForm extends React.Component {
+const mapStateToProps = (state) => ({});
+
+const mapDispatchToProps = (dispatch, props) => ({
+    onSave: (table) => {
+        if (table.id === Const.NEW_TABLE_ID) {
+            dispatch(addTable(table));
+        } else {
+            dispatch(editTable(table));
+        }
+        if (typeof(props.onSave) === "function") {
+            props.onSave();
+        }
+    }
+});
+
+class TableLineForm extends React.Component {
     constructor(props) {
         super(props);
         let table = {...this.props.table};
@@ -92,3 +110,8 @@ export default class TableLineForm extends React.Component {
         )
     }
 }
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(TableLineForm)
