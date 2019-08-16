@@ -1,11 +1,33 @@
 import React from 'react';
+import { connect } from 'react-redux'
+import { addGuest, editGuest } from '../store/actions/guests.js'
+import { addGroup } from '../store/actions/groups.js'
 import _ from 'lodash';
 import CreateGroupModal from './CreateGroupModal.js';
 import ModalPortal from '../utils/ModalPortal'
 import Utils from '../utils/utils.js';
 import Const from '../utils/const.js'
 
-export default class GuestLineForm extends React.Component {
+
+const mapStateToProps = (state) => ({
+    groupsList: state.groupsList,
+});
+
+const mapDispatchToProps = (dispatch, props) => ({
+    onSave: (guest) => {
+        if (guest.id === Const.NEW_GUEST_ID) {
+            dispatch(addGuest(guest));
+        } else {
+            dispatch(editGuest(guest));
+        }
+        props.onSave();
+    },
+    onAddGroup: (group) => {
+        dispatch(addGroup(group));
+    }
+});
+
+class GuestLineForm extends React.Component {
     constructor(props) {
         super(props);
         let guest = _.clone(this.props.guest);
@@ -60,7 +82,10 @@ export default class GuestLineForm extends React.Component {
         })
     }
 
-    save() {
+    save(e) {
+        if (e && typeof(e.preventDefault) === "function") {
+            e.preventDefault();
+        }
         let guest = _.clone(this.state.guest);
         for (const attr in guest) {
             if (Utils.isEmptyString(guest[attr])) {
@@ -125,7 +150,7 @@ export default class GuestLineForm extends React.Component {
                 <td className="guest-line-form__cell">
                     <button
                         type="submit"
-                        onClick={_ => this.save()}>
+                        onClick={e => this.save(e)}>
                         Ok
                     </button> {/*TODO: add form validation*/}
                     <button
@@ -143,3 +168,8 @@ export default class GuestLineForm extends React.Component {
         if (this.toFocus) this.toFocus.focus();
     }
 }
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(GuestLineForm)

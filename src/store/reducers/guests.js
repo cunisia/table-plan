@@ -54,7 +54,9 @@ const guestsReducer = (guestsList = [], action) => {
         case (GuestActionTypes.ADD_GUEST):
             return addGuest(guestsList, action);
         case (GuestActionTypes.EDIT_GUEST):
-            return editGuest(guestsList, action)
+            return editGuest(guestsList, action);
+        case (GuestActionTypes.COPY_GUEST):
+            return copyGuest(guestsList, action)
         case (GuestActionTypes.DELETE_GUEST):
             return deleteGuest(guestsList, action);
         case (GroupActionTypes.DELETE_GROUP):

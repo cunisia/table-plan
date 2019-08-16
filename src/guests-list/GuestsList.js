@@ -11,24 +11,12 @@ export default class GuestList extends React.Component {
             editedGuestId: null
         };
         this.removeGuestForm = this.removeGuestForm.bind(this);
-        this.saveGuest = this.saveGuest.bind(this);
         this.editGuest = this.editGuest.bind(this);
-        this.deleteGuest = this.deleteGuest.bind(this);
-        this.addGroup = this.addGroup.bind(this);
     }
 
     /*
         GUEST CRUD
      */
-
-    saveGuest(guest) {
-        if (guest.id === Const.NEW_GUEST_ID) {
-            this.props.addGuest(guest);
-        } else {
-            this.props.editGuest(guest);
-        }
-        this.removeGuestForm();
-    }
 
     removeGuestForm() {
         this.setState({
@@ -43,11 +31,6 @@ export default class GuestList extends React.Component {
         this.setState({
             editedGuestId: guestId
         });
-    }
-
-    async deleteGuest(guestId) {
-        await this.removeGuestForm();
-        this.props.deleteGuest(guestId);
     }
 
     async addGuest() {
@@ -65,14 +48,6 @@ export default class GuestList extends React.Component {
     }
 
     /*
-        GROUP CRUD
-     */
-
-    addGroup(group) {
-        this.props.addGroup(group);
-    }
-
-    /*
         VIEW
      */
 
@@ -86,18 +61,16 @@ export default class GuestList extends React.Component {
                 return (
                     <GuestLineForm key={guest.id}
                                    guest={guest}
-                                   groupsList={this.props.groupsList}
-                                   onSave={this.saveGuest}
                                    onCancel={this.removeGuestForm}
-                                   onAddGroup={this.addGroup} />
+                                   onSave={this.removeGuestForm}/>
                 )
             } else {
                 return (
                     <GuestLine key={guest.id}
                                guest={guest}
-                               groupsList={this.props.groupsList}
                                onEdit={this.editGuest}
-                               onDelete={this.deleteGuest}/>
+                               onCopy={this.removeGuestForm}
+                               onDelete={this.removeGuestForm}/>
                 )
             }
         })
@@ -108,10 +81,9 @@ export default class GuestList extends React.Component {
             return (
                 <GuestLineForm key={this.state.newGuest.id}
                     guest={this.state.newGuest}
-                    groupsList={this.props.groupsList}
-                    onSave={this.saveGuest}
                     onCancel={this.removeGuestForm}
-                    onAddGroup={this.addGroup} />
+                    onAddGroup={this.addGroup}
+                    onSave={this.removeGuestForm}/>
             )
         }
     }
