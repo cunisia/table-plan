@@ -1,6 +1,13 @@
 const GuestUtils = {
     getGuestFullName(guest) {
-        return guest.firstName + " " + guest.lastName;
+        let name = "";
+        if (guest.firstName) {
+            name += guest.firstName;
+        }
+        if (guest.lastName) {
+            name += guest.firstName ? " " + guest.lastName : guest.lastName;
+        }
+        return name;
     }
 }
 
