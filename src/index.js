@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { createStore } from 'redux';
+import { applyMiddleware, createStore } from 'redux';
+import thunkMiddleware from 'redux-thunk';
 import tablePlanReducer from './store/reducers';
 
 import './index.css';
@@ -9,7 +10,7 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 
 const previousState = JSON.parse(window.localStorage.getItem('table-plan-ai'));
-const store = createStore(tablePlanReducer, previousState ? previousState : undefined);
+const store = createStore(tablePlanReducer, previousState ? previousState : undefined, applyMiddleware(thunkMiddleware));
 
 store.subscribe(() => {
     window.localStorage.setItem('table-plan-ai', JSON.stringify(store.getState()));
