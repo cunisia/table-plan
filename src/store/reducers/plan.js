@@ -17,7 +17,7 @@ const planReducer = (state = initialState, action) => {
             return {
                 ...state,
                 pending: false,
-                plan: action.payload
+                plan: action.plan
             };
         case (PlanActionTypes.GENERATE_PLAN_ERROR):
             return {

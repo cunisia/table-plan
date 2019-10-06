@@ -3,8 +3,11 @@ import Plan from './Plan';
 import {generatePlan} from '../store/actions/plan.js';
 
 const mapStateToProps = state => {
+    const {planWrapper, tablesList, guestsList} = state;
     return {
-        ...state.planWrapper
+        planWrapper,
+        tablesList,
+        guestsList
     };
 };
 

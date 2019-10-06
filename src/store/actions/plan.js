@@ -32,11 +32,11 @@ export const generatePlan = () => {
         })
         .then(
             response => response.json(),
-            error => generatePlanError(error)
+            error => dispatch(generatePlanError(error))
         )
-        .then(json =>
-            dispatch(generatePlanSuccess(json)),
-            error => generatePlanError(error)
+        .then(
+            json => dispatch(generatePlanSuccess(json)),
+            error => dispatch(generatePlanError(error))
         )
     }
 }
