@@ -40,7 +40,16 @@ const TablePlan = (props) => {
             const label = guestId ? guestsMap[guestId] ? GuestUtils.getGuestFullName(guestsMap[guestId]) : `unknown (${guestId})` : "empty";
             return (<tr key={index}><td>#{index + 1}</td><td>{label}</td></tr>)
         })
-        return (<table><tr><td colSpan="2">{table.name}</td></tr>{lines}</table>)
+        return (
+            <table key={table.name}>
+                <thead>
+                    <tr>
+                        <td colSpan="2">{table.name}</td>
+                    </tr>
+                </thead>
+                <tbody>{lines}</tbody>
+            </table>
+        );
     });
     return (<>{tablePlan}</>)
 
