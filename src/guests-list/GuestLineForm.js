@@ -1,4 +1,6 @@
 import React from 'react';
+import {Table, Input, Button, Dropdown} from 'semantic-ui-react';
+
 import { connect } from 'react-redux'
 import { addGuest, editGuest } from '../store/actions/guests.js'
 import { addGroup } from '../store/actions/groups.js'
@@ -48,20 +50,22 @@ class GuestLineForm extends React.Component {
         this.removeCreateGroupModal = this.removeCreateGroupModal.bind(this);
     }
 
-    handleChange(attribute, event) {
+    handleChange(attribute, data) {
+        const {value} = data;
         let guest = {...this.state.guest};
-        guest[attribute] = event.target.value;
+        guest[attribute] = value;
         this.setState({guest: guest});
     }
 
-    handleGroupChange(event) {
-        if (event.target.value === Const.NEW_GROUP_OPT) {
+    handleGroupChange(data) {
+        const {value} = data;
+        if (value === Const.NEW_GROUP_OPT) {
             /* Summon modal for group creation*/
             this.setState({
                 displayGroupCreationModal: true
             });
         } else {
-            this.setGroup(parseInt(event.target.value));
+            this.setGroup(parseInt(value));
         }
     }
 
@@ -99,46 +103,49 @@ class GuestLineForm extends React.Component {
      --- RENDERING ---
      */
 
-    renderGroupOptions() {
-        return this.props.groupsList.map(group => {
-            return (
-                <option key={group.id} value={group.id}>{group.name}</option>
-            )
-        })
+    getGroupOptions() {
+        const groupOptions = this.props.groupsList.map(group => ({key: group.id, value: group.id, text: group.name}));
+        return [
+            {key:"NONE", value:"", text:"None"},
+            ...groupOptions,
+            {key: Const.NEW_GROUP_OPT, value: Const.NEW_GROUP_OPT, text: "New Group"}
+        ]
+
     }
 
     render() {
         return (
-            <tr className="guest-line-form">
-                <td className="guest-line-form__cell">
-                    <input placeholder="First Name"
+            <Table.Row className="guest-line-form">
+                <Table.Cell className="guest-line-form__cell">
+                    <Input placeholder="First Name"
                            value={this.state.guest.firstName}
-                           onChange={e => this.handleChange('firstName', e)}
+                           onChange={(e, data) => this.handleChange('firstName', data)}
                            ref={e => this.toFocus = e}/>
-                </td>
-                <td className="guest-line-form__cell">
-                    <input placeholder="Last Name"
+                </Table.Cell>
+                <Table.Cell className="guest-line-form__cell">
+                    <Input placeholder="Last Name"
                            value={this.state.guest.lastName}
-                           onChange={e => this.handleChange('lastName', e)} />
-                </td>
-                <td className="guest-line-form__cell">
-                    <select
+                           onChange={(e, data) => this.handleChange('lastName', data)} />
+                </Table.Cell>
+                <Table.Cell className="guest-line-form__cell">
+                    <Dropdown
                         data-testid="guest-line-form__input--sex"
                         value={this.state.guest.sex}
-                        onChange={e => this.handleChange('sex', e)}>
-                        <option value={Const.GENDER.MALE}>Male</option>
-                        <option value={Const.GENDER.FEMALE}>Female</option>
-                    </select>
-                </td>
-                <td className="guest-line-form__cell">
-                    <select
+                        onChange={(e, data) => this.handleChange('sex', data)}
+                        options={[
+                            {key: Const.GENDER.MALE, value: Const.GENDER.MALE, text: "Male"},
+                            {key: Const.GENDER.FEMALE, value: Const.GENDER.FEMALE, text: "Female"}
+                        ]}
+                    />
+                </Table.Cell>
+                <Table.Cell className="guest-line-form__cell">
+                    <Dropdown
                         data-testid="guest-line-form__input--group"
                         value={this.state.guest.groupId}
-                        onChange={e => this.handleGroupChange(e)}>
-                            <option key={"NONE"} value="">None</option>
-                            {this.renderGroupOptions()}
-                            <option key={Const.NEW_GROUP_OPT} value={Const.NEW_GROUP_OPT}>New Group</option>
-                    </select>
+                        onChange={(e, data) => this.handleGroupChange(data)}
+                        search
+                        options={this.getGroupOptions()}
+                    />
                     <ModalPortal>
                         {
                             this.state.displayGroupCreationModal ?
@@ -146,8 +153,8 @@ class GuestLineForm extends React.Component {
                             : null
                         }
                     </ModalPortal>
-                </td>
-                <td className="guest-line-form__cell">
+                </Table.Cell>
+                <Table.Cell className="guest-line-form__cell">
                     <button
                         type="submit"
                         onClick={e => this.save(e)}>
@@ -159,8 +166,8 @@ class GuestLineForm extends React.Component {
                         onClick={_ => this.props.onCancel()}>
                         Cancel
                     </button>
-                </td>
-            </tr>
+                </Table.Cell>
+            </Table.Row>
         );
     }
 

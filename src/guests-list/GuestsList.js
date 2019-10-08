@@ -1,4 +1,6 @@
 import React from 'react';
+import {Container, Table, Header, Button, Icon} from 'semantic-ui-react';
+
 import Const from '../utils/const.js';
 import GuestLineForm from './GuestLineForm.js';
 import GuestLine from './GuestLine.js';
@@ -90,33 +92,35 @@ export default class GuestList extends React.Component {
 
     render() {
         return (
-            <section>
-                <h1>Guest List</h1>
+            <Container as="section">
+                <Header as="h1">Guest List</Header>
                 <form>
-                    <table>
-                        <thead>
-                            <tr>
-                                <td>Fist Name</td>
-                                <td>Last Name</td>
-                                <td>Sexe</td>
-                                <td>Group</td>
-                                <td>Action</td>
-                            </tr>
-                        </thead>
-                        <tbody id="guest-list__body">
+                    <Table>
+                        <Table.Header>
+                            <Table.Row>
+                                <Table.HeaderCell>Fist Name</Table.HeaderCell>
+                                <Table.HeaderCell>Last Name</Table.HeaderCell>
+                                <Table.HeaderCell>Sexe</Table.HeaderCell>
+                                <Table.HeaderCell>Group</Table.HeaderCell>
+                                <Table.HeaderCell>Action</Table.HeaderCell>
+                            </Table.Row>
+                        </Table.Header>
+                        <Table.Body id="guest-list__body">
                             {this.renderGuestList()}
                             {this.renderNewGuestForm()}
-                        </tbody>
-                    </table>
-                    <button
+                        </Table.Body>
+                    </Table>
+                    <Button
+                        primary
                         id="guest-list__add-guest"
                         type="button"
                         onClick={_ => this.addGuest()}
                         ref={e => this.addGuestBtn = e}>
+                            <Icon name='plus' />
                             Add Guest
-                    </button>
+                    </Button>
                 </form>
-            </section>
+            </Container>
         );
     }
 }
